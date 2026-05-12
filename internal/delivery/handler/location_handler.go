@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"godp/internal/delivery/middleware"
-	"godp/internal/entity"
+	"godp/internal/domain"
 	"godp/internal/usecase"
 	"godp/pkg/response"
 
@@ -19,7 +19,7 @@ func NewLocationHandler(locationUsecase usecase.LocationUsecase) *LocationHandle
 }
 
 func (h *LocationHandler) Create(c *gin.Context) {
-	var req entity.Location
+	var req domain.Location
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Error(c, http.StatusBadRequest, err.Error())
 		return
@@ -32,12 +32,28 @@ func (h *LocationHandler) Create(c *gin.Context) {
 }
 
 func (h *LocationHandler) FindAll(c *gin.Context) {
+	var req domain.Location
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	data, err := h.locationUsecase.FindAll(middleware.IsMember(c))
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	response.OK(c, "locations", data)
+
+	if err := h.locationUsecase.Create(&req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "location created successfully",
+		"data":    req,
+	})
 }
 
 func (h *LocationHandler) FindNearby(c *gin.Context) {

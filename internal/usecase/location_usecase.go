@@ -1,14 +1,14 @@
 package usecase
 
 import (
-	"godp/internal/entity"
+	"godp/internal/domain"
 	"godp/internal/repository"
 )
 
 type LocationUsecase interface {
-	Create(location *entity.Location) error
-	FindAll(isMember bool) ([]entity.Location, error)
-	FindNearby(longitude, latitude float64, radiusMeter int, isMember bool) ([]entity.Location, error)
+	Create(location *domain.Location) error
+	FindAll(isMember bool) ([]domain.Location, error)
+	FindNearby(longitude, latitude float64, radiusMeter int, isMember bool) ([]domain.Location, error)
 }
 
 type locationUsecase struct{ locationRepo repository.LocationRepository }
@@ -17,11 +17,11 @@ func NewLocationUsecase(locationRepo repository.LocationRepository) LocationUsec
 	return &locationUsecase{locationRepo: locationRepo}
 }
 
-func (u *locationUsecase) Create(location *entity.Location) error {
+func (u *locationUsecase) Create(location *domain.Location) error {
 	return u.locationRepo.Create(location)
 }
 
-func (u *locationUsecase) FindAll(isMember bool) ([]entity.Location, error) {
+func (u *locationUsecase) FindAll(isMember bool) ([]domain.Location, error) {
 	limit := 0
 	if !isMember {
 		limit = 10
@@ -29,7 +29,7 @@ func (u *locationUsecase) FindAll(isMember bool) ([]entity.Location, error) {
 	return u.locationRepo.FindAll(limit)
 }
 
-func (u *locationUsecase) FindNearby(longitude, latitude float64, radiusMeter int, isMember bool) ([]entity.Location, error) {
+func (u *locationUsecase) FindNearby(longitude, latitude float64, radiusMeter int, isMember bool) ([]domain.Location, error) {
 	limit := 0
 	if !isMember {
 		limit = 10

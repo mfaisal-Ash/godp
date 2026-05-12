@@ -1,28 +1,46 @@
 package main
 
 import (
+	"log"
+
 	"godp/config"
 	"godp/internal/delivery/handler"
 	"godp/internal/delivery/routes"
 	"godp/internal/repository"
 	"godp/internal/usecase"
-	"log"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
+		log.Println(".env not found, using environment/default config")
 	}
-
 	config.ConnectDatabase()
-	locationRepo := repository.NewLocationRepository(config.DB)
-	locationUsecase := usecase.NewLocationUsecase(locationRepo)
-	locationHandler := handler.NewLocationHandler(locationUsecase)
 
-	router := routes.SetupRouter(locationHandler)
-	if err := router.Run(":8080"); err != nil {
-		log.Fatal("Failed to run server:", err)
+	userRepo := repository.NewUserRepository(config.DB)
+	locationRepo := repository.NewLocationRepository(config.DB)
+	outfitRepo := repository.NewOutfitRepository(config.DB)
+	favoriteRepo := repository.NewFavoriteRepository(config.DB)
+	storeRepo := repository.NewStoreRepository(config.DB)
+
+	authUsecase := usecase.NewAuthUsecase(userRepo)
+	locationUsecase := usecase.NewLocationUsecase(locationRepo)
+	outfitUsecase := usecase.NewOutfitUsecase(outfitRepo)
+	favoriteUsecase := usecase.NewFavoriteUsecase(favoriteRepo)
+	storeUsecase := usecase.NewStoreUsecase(storeRepo)
+
+	r := gin.Default()
+	routes.SetupRoutes(r, routes.Handlers{
+		Auth:     handler.NewAuthHandler(authUsecase),
+		Location: handler.NewLocationHandler(locationUsecase),
+		Outfit:   handler.NewOutfitHandler(outfitUsecase),
+		Favorite: handler.NewFavoriteHandler(favoriteUsecase),
+		Store:    handler.NewStoreHandler(storeUsecase),
+	})
+
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal(err)
 	}
 }

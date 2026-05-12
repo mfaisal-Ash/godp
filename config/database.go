@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"godp/internal/entity"
+	"godp/internal/domain"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,8 +29,8 @@ func ConnectDatabase() {
 	}
 
 	db.AutoMigrate(
-		&entity.User{},
-		&entity.Location{},
+		&domain.User{},
+		&domain.Location{},
 	)
 
 	DB = db
