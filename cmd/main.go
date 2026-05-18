@@ -21,13 +21,11 @@ func main() {
 
 	userRepo := repository.NewUserRepository(config.DB)
 	locationRepo := repository.NewLocationRepository(config.DB)
-	outfitRepo := repository.NewOutfitRepository(config.DB)
 	favoriteRepo := repository.NewFavoriteRepository(config.DB)
 	storeRepo := repository.NewStoreRepository(config.DB)
 
 	authUsecase := usecase.NewAuthUsecase(userRepo)
 	locationUsecase := usecase.NewLocationUsecase(locationRepo)
-	outfitUsecase := usecase.NewOutfitUsecase(outfitRepo)
 	favoriteUsecase := usecase.NewFavoriteUsecase(favoriteRepo)
 	storeUsecase := usecase.NewStoreUsecase(storeRepo)
 
@@ -35,7 +33,6 @@ func main() {
 	routes.SetupRoutes(r, routes.Handlers{
 		Auth:     handler.NewAuthHandler(authUsecase),
 		Location: handler.NewLocationHandler(locationUsecase),
-		Outfit:   handler.NewOutfitHandler(outfitUsecase),
 		Favorite: handler.NewFavoriteHandler(favoriteUsecase),
 		Store:    handler.NewStoreHandler(storeUsecase),
 	})
